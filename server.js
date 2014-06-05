@@ -11,7 +11,7 @@ var mongoose = require('mongoose');
 var uristring =
 process.env.MONGOLAB_URI ||
 process.env.MONGOHQ_URL ||
-'mongodb://localhost:27017/homedb';
+'mongodb://localhost:27017/homedb2';
 
 // The http server will listen to an appropriate port, or default to
 // port 5000.
@@ -35,12 +35,16 @@ var MediaSchema = new Schema({
     photos: [{
         image_url: String,
         date_taken: Date,
-        comments: [{
-            comment: String,
-            user: String,
+        annotations: [{
+            annotation: String,
             x_coord: Number,
             y_coord: Number
         }]
+    }],
+    comments: [{
+        user: String,
+        comment_date: Date,
+        comment: String
     }]
 });
 
@@ -68,6 +72,7 @@ app.post('/api/media', function(req, res) {
     media.listing_id = req.body.listing_id;
     media.group_id = req.body.group_id;
     media.photos = req.body.photos;
+    media.comments = req.body.comments;
     console.log("Comment:" + JSON.stringify(req.body));
     // save the media information and check for errors
     media.save(function (err) {
