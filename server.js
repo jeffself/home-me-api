@@ -13,7 +13,7 @@ var app = express();
 
 app.use(bodyParser());
 
-var port = process.env.PORT || 7000;
+var port = process.env.PORT || 5000;
 
 // Make our DB accessible
 app.use(function(req, res, next) {
