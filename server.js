@@ -63,6 +63,20 @@ app.use(function(req, res, next) {
 //app.use('/api', routes);
 //app.use('/api/media', media);
 
+app.post('/api/media', function(req, res) {
+    var media = new MediaModel();
+    media.listing_id = req.body.listing_id;
+    media.group_id = req.body.group_id;
+    media.photos = req.body.photos;
+    console.log("Comment:" + JSON.stringify(req.body));
+    // save the media information and check for errors
+    media.save(function (err) {
+      if (err)
+        res.send(err);
+      res.json({ message: 'Media Information created!' });
+    });
+  });
+
 app.get('/api/media', function(req, res) {
     return MediaModel.find(function(err, images) {
       if (err)
