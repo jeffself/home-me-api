@@ -75,7 +75,7 @@ app.post('/api/media', function(req, res) {
         res.send(err);
       res.json({ message: 'Media Information created!' });
     });
-  });
+});
 
 app.get('/api/media', function(req, res) {
     return MediaModel.find(function(err, images) {
@@ -83,8 +83,15 @@ app.get('/api/media', function(req, res) {
         res.send(err);
       res.json(images);
     });
-  });
+});
 
+app.get('/api/media/listing/:listing_id', function(req, res) {
+    MediaModel.find( {"listing_id" : req.params.listing_id }, function(err, images) {
+      if (err)
+        res.send(err);
+      res.json(images);
+    });
+});
 
 app.listen(port);
 console.log('Magic happens on port ' + port);
