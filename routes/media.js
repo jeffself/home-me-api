@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var Media = require('models/media');
+var Media = require('media');
 
 router.route('/')
 
