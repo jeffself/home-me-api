@@ -6,10 +6,15 @@ var Schema = mongoose.Schema;
 var MediaSchema = new Schema({
     listing_id: Number,
     group_id: Number,
-    media_info: [{
-        date_taken: { type: Date, default: Date.now },
-        item_url: String,
-        comments: [{ body: String, user: String, x_coord: Number, y_coord: Number }],
+    photos: [{
+        image_url: String,
+        date_taken: Date,
+        comments: [{
+            comment: String,
+            user: String,
+            x_coord: Number,
+            y_coord: Number
+        }]
     }]
 });
 

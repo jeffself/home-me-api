@@ -9,11 +9,8 @@ router.route('/')
     var media = new Media();
     media.listing_id = req.body.listing_id;
     media.group_id = req.body.group_id;
-    media.media_info.info.date_taken = req.body.media_info.info.date_taken;
-    media.media_info.info.item_url = req.body.media_info.info.item_url;
-    media.media_info.info.comments.body = req.body.media_info.info.comments.body;
-    media.media_info.info.comments.user = req.body.media_info.info.comments.user;
-
+    media.photos = req.body.photos;
+    console.log("Comment:" + JSON.stringify(req.body));
     // save the media information and check for errors
     media.save(function (err) {
       if (err)
