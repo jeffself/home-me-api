@@ -27,8 +27,27 @@ var db = mongoose.connect(uristring, function (err, res) {
   }
 });
 
-var routes = require('./routes/index');
-var media = require('./routes/media');
+var Schema = mongoose.Schema;
+
+var MediaSchema = new Schema({
+    listing_id: Number,
+    group_id: Number,
+    photos: [{
+        image_url: String,
+        date_taken: Date,
+        comments: [{
+            comment: String,
+            user: String,
+            x_coord: Number,
+            y_coord: Number
+        }]
+    }]
+});
+
+var MediaModel = mongoose.model('Media', MediaSchema);
+
+//var routes = require('./routes/index');
+//var media = require('./routes/media');
 
 var app = express();
 
@@ -41,8 +60,17 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.use('/api', routes);
-app.use('/api/media', media);
+//app.use('/api', routes);
+//app.use('/api/media', media);
+
+app.get('/api/media', function(req, res) {
+    return MediaModel.find(function(err, images) {
+      if (err)
+        res.send(err);
+      res.json(images);
+    });
+  });
+
 
 app.listen(port);
 console.log('Magic happens on port ' + port);
