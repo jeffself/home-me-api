@@ -1,7 +1,10 @@
 var express = require('express');
-var path = require('path');
+var app = express();
 var bodyParser = require('body-parser');
-var http = require('http');
+
+// configure app to use bodyParser()
+// this will let us get the data from a POST
+app.use(bodyParser());
 
 // Database
 var mongoose = require('mongoose');
@@ -11,7 +14,7 @@ var mongoose = require('mongoose');
 var uristring =
 process.env.MONGOLAB_URI ||
 process.env.MONGOHQ_URL ||
-'mongodb://localhost:27017/homedb2';
+'mongodb://localhost:27017/homedb3';
 
 // The http server will listen to an appropriate port, or default to
 // port 5000.
@@ -29,9 +32,8 @@ var db = mongoose.connect(uristring, function (err, res) {
 
 var Schema = mongoose.Schema;
 
-var MediaSchema = new Schema({
+var CollectionSchema = new Schema({
     listing_id: Number,
-    group_id: Number,
     photos: [{
         image_url: String,
         date_taken: Date,
@@ -48,11 +50,78 @@ var MediaSchema = new Schema({
     }]
 });
 
-var MediaModel = mongoose.model('Media', MediaSchema);
+var Collection = mongoose.model('Collection', CollectionSchema);
 
-//var routes = require('./routes/index');
-//var media = require('./routes/media');
+// ROUTES FOR OUR API
+// =======================================================
+var router = express.Router();
 
+// middleware to use for all requests
+router.use(function(req, res, next) {
+    // do logging
+    console.log('Something is happening');
+    next();
+});
+
+// test route to make sure everything is working (accessed at GET http://localhost:7000/api)
+router.get('/', function(req, res) {
+    res.json({ message: 'hooray! welcome to our api!' });
+});
+
+
+// on routes that end in /bears
+// ----------------------------------------------
+router.route('/collections')
+
+    // create a Media item (accessed at POST http://localhost:5000/api/collections)
+    .post(function(req, res) {
+
+        var listing_collection = new Collection();
+        listing_collection.listing_id = req.body.listing_id;
+        listing_collection.photos = req.body.photos;
+        listing_collection.comments = req.body.comments;
+
+        // save the listing collection and check for errors
+        listing_collection.save(function(err) {
+            if (err)
+                res.send(err);
+            res.json({ message: 'Media collection created!' });
+        });
+
+    })
+
+    // get all the Listing Collections (accessed at GET http://localhost:5000/api/collections)
+    .get(function(req, res) {
+
+        Collection.find(function(err, collections) {
+            if (err)
+                res.send(err);
+            res.json(collections);
+        });
+    });
+
+router.route('/collections/:listing_id')
+
+    // get the collection with that listing id (accessed at GET http://localhost:7000/api/collections/:listing_id)
+    .get(function(req, res) {
+        Collection.find({ "listing_id" : req.params.listing_id}, function(err, collection) {
+            if (err)
+                res.send(err);
+            res.json(collection);
+        });
+    });
+
+router.route('/collections/:listing_id/photos')
+    // update the collection with this listing id (accessed at PUT http://localhost:7000/api/collections/:listing_id)
+    .post(function(req, res) {
+        Collection.update({ "listing_id" : req.params.listing_id}, {$push: { photos: req.body.photos }}, function(err, collection) {
+            if (err)
+                res.send(err);
+            res.json(collection);
+        });
+    });
+
+/*
 var app = express();
 
 app.use(bodyParser());
@@ -63,9 +132,6 @@ app.use(function(req, res, next) {
     console.log('Tapping into the database.');
     next();
 });
-
-//app.use('/api', routes);
-//app.use('/api/media', media);
 
 app.post('/api/media', function(req, res) {
     var media = new MediaModel();
@@ -98,5 +164,27 @@ app.get('/api/media/listing/:listing_id', function(req, res) {
     });
 });
 
+app.put('/api/media/:_id', function(req, res) {
+    MediaModel.findById( req.params._id, function(err, images) {
+        if (err)
+            res.send(err);
+        images.photos = req.body.photos;
+        images.comments = req.body.comments;
+
+        images.save(function (err) {
+            if (err)
+                res.send(err)
+            res.json({ message: 'Listing photos updated!'});
+        });
+    });
+});
+*/
+
+// REGISTER OUR ROUTES --------------------------
+// all of our routes will be prefixed with /api
+app.use('/api', router);
+
+// START THE SERVER
+// =======================================================
 app.listen(port);
 console.log('Magic happens on port ' + port);
