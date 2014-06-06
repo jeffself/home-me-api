@@ -125,7 +125,7 @@ router.route('/collections/:listing_id/photos/:index/comments')
     // update the comments in this collection with this listing id and photo id (accessed at PUT http://localhost:7000/api/collections/:listing_id/photos/:_id/comments)
     .post(function(req, res) {
         var myPush = {};
-        myPush['photos['+req.params.index+'].comments'] = req.body.comments;
+        myPush['photos.'+req.params.index+'.comments'] = req.body.comments;
         Collection.update({ "listing_id": req.params.listing_id }, {$push: myPush}, function(err, collection) {
             if (err)
                 res.send(err);
