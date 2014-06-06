@@ -41,13 +41,13 @@ var CollectionSchema = new Schema({
             annotation: String,
             x_coord: Number,
             y_coord: Number
+        }],
+        comments: [{
+            user: String,
+            comment_date: Date,
+            comment: String
         }]
     }],
-    comments: [{
-        user: String,
-        comment_date: Date,
-        comment: String
-    }]
 });
 
 var Collection = mongoose.model('Collection', CollectionSchema);
@@ -112,9 +112,19 @@ router.route('/collections/:listing_id')
     });
 
 router.route('/collections/:listing_id/photos')
-    // update the collection with this listing id (accessed at PUT http://localhost:7000/api/collections/:listing_id)
+    // update the photos in this collection with this listing id (accessed at PUT http://localhost:7000/api/collections/:listing_id/photos)
     .post(function(req, res) {
         Collection.update({ "listing_id" : req.params.listing_id}, {$push: { photos: req.body.photos }}, function(err, collection) {
+            if (err)
+                res.send(err);
+            res.json(collection);
+        });
+    });
+
+router.route('/collections/:listing_id/photos/:_id/comments')
+    // update the comments in this collection with this listing id and photo id (accessed at PUT http://localhost:7000/api/collections/:listing_id/photos/:_id/comments)
+    .post(function(req, res) {
+        Collection.update({ "listing_id" : req.params.listing_id}, { "photos" : req.params._id}, {$push: { comments: req.body.comments }}, function(err, collection) {
             if (err)
                 res.send(err);
             res.json(collection);
